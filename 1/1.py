@@ -1,5 +1,7 @@
-from icmplib import ping
 import csv
+
+from icmplib import ping
+
 
 domains = ["google.com", "yandex.ru", "youtube.com", "spotify.com", "dns.ru", 
             "github.com", "vk.com", "yahoo.com", "mail.ru", "facebook.com"]
