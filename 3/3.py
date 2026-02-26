@@ -19,6 +19,7 @@ options.add_argument(
     '--user-data-dir=C:\\Users\\astva\\AppData\\Local\\Google\\Chrome\\User Data\\Default')
 driver = webdriver.Chrome(options=options)
 
+
 def parse_page(films):
     """Парсит данные с одной страницы и возвращает список с данными фильмов"""
     for film in films:
