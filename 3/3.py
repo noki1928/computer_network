@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-MAX_PAGE = 10
+MAX_PAGE = 4
 
 # Глобальный список для результатов парсинга (будет записан в CSV)
 film_data_rows = [
@@ -16,25 +16,10 @@ film_data_rows = [
 
 options = Options()
 options.add_argument(
-    '--user-data-dir=C:\\Users\\astva\\AppData\\Local\\Google\\Chrome\\User Data\\Default') # Путь к папке с cookies
+    '--user-data-dir=C:\\Users\\astva\\AppData\\Local\\Google\\Chrome\\User Data\\Default'
+    ) # Путь к папке с cookies
+
 driver = webdriver.Chrome(options=options)
-
-
-def parse_page(films: list) -> list:
-    """Парсит данные с одной страницы и возвращает список с данными фильмов"""
-    for film in films:
-        current_film = film.find_element(By.CSS_SELECTOR, "a")
-        current_poster = film.find_element(By.CSS_SELECTOR, "img")
-        poster_link = current_poster.get_attribute("src")
-
-        film_info = current_film.get_attribute("data-original-title").split()
-        film_name = " ".join(film_info[:-2])
-        film_year = film_info[-2].replace("(", "").replace(")", "")
-        film_rate = film_info[-1]
-        letterboxd_link = current_film.get_attribute("href")
-        # print(film_name, film_year, film_rate) # Раскомментировать для отображения фильмов в консоли
-
-        return [film_name, film_year, film_rate, letterboxd_link, poster_link]
 
 
 def driver_get_page(url: str) -> list:
@@ -50,19 +35,33 @@ def driver_get_page(url: str) -> list:
     return films
 
 
-url = 'https://letterboxd.com/films/popular/'
-films = driver_get_page(url=url)
-film_data = parse_page(films=films)
-film_data_rows.append(film_data)
+def parse_page(films: list) -> list:
+    """Парсит данные с одной страницы и добавляет их в список с данными фильмов"""
+    for film in films:
+        current_film = film.find_element(By.CSS_SELECTOR, "a")
+        current_poster = film.find_element(By.CSS_SELECTOR, "img")
+        poster_link = current_poster.get_attribute("src")
 
-for page in range(2, MAX_PAGE + 1):
-    url = f'https://letterboxd.com/films/popular/page/{page}/'
+        film_info = current_film.get_attribute("data-original-title").split()
+        film_name = " ".join(film_info[:-2])
+        film_year = film_info[-2].replace("(", "").replace(")", "")
+        film_rate = film_info[-1]
+        letterboxd_link = current_film.get_attribute("href")
+        # print(film_name, film_year, film_rate) # Раскомментировать для отображения фильмов в консоли
+
+        film_data_rows.append([film_name, film_year, film_rate, letterboxd_link, poster_link])
+
+try:
+    url = 'https://letterboxd.com/films/popular/'
     films = driver_get_page(url=url)
-    film_data = parse_page(films=films)
-    film_data_rows.append(film_data)
+    parse_page(films=films)
 
-
-driver.quit()
+    for page in range(2, MAX_PAGE + 1):
+        url = f'https://letterboxd.com/films/popular/page/{page}/'
+        films = driver_get_page(url=url)
+        parse_page(films=films)
+finally:
+    driver.quit()
 
 
 with open('results.csv', 'w', newline='', encoding='utf-8') as file:
