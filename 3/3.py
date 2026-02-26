@@ -16,11 +16,11 @@ film_data_rows = [
 
 options = Options()
 options.add_argument(
-    '--user-data-dir=C:\\Users\\astva\\AppData\\Local\\Google\\Chrome\\User Data\\Default')
+    '--user-data-dir=C:\\Users\\astva\\AppData\\Local\\Google\\Chrome\\User Data\\Default') # Путь к папке с cookies
 driver = webdriver.Chrome(options=options)
 
 
-def parse_page(films):
+def parse_page(films: list) -> list:
     """Парсит данные с одной страницы и возвращает список с данными фильмов"""
     for film in films:
         current_film = film.find_element(By.CSS_SELECTOR, "a")
@@ -37,7 +37,7 @@ def parse_page(films):
         return [film_name, film_year, film_rate, letterboxd_link, poster_link]
 
 
-def driver_get_page(url):
+def driver_get_page(url: str) -> list:
     """Получает данные с одной страницы и возвращает список с данными фильмов"""
     driver.get(url)
 
